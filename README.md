@@ -79,26 +79,25 @@ maturin develop
 
 ### 5. Run with a Python WSGI server
 
-Create a Python file (e.g., `server.py`) to run your app.
+Create a Python file (e.g., `app.py`) that exposes your WSGI application object.
 
 ```python
-# server.py
-from wsgiref.simple_server import make_server
+# app.py
 # The name here corresponds to the `name` in your [lib] section of Cargo.toml
 from my_axum_app import AxumWsgi
 
-# Create an instance of the WSGI app
-app = AxumWsgi()
-
-# Run the server
-with make_server('127.0.0.1', 8000, app) as httpd:
-    print("Serving on http://127.0.0.1:8000...")
-    httpd.serve_forever()
+# Gunicorn will look for this 'application' object by default.
+application = AxumWsgi()
 ```
 
-Now run the server:
+Now run the server using a production-ready WSGI server like `gunicorn`. **Note:** `wsgiref.simple_server` is not recommended as its single-threaded nature can cause deadlocks with this library's async bridge.
+
 ```bash
-python server.py
+# Install gunicorn
+pip install gunicorn
+
+# Run the server
+gunicorn app:application --bind 127.0.0.1:8000
 ```
 You can now access your `axum` app at `http://127.0.0.1:8000/` and `http://127.0.0.1:8000/api/rust`.
 
@@ -115,18 +114,18 @@ cd example
 python -m venv .venv
 source .venv/bin/activate
 
-# Install maturin
-pip install maturin
+# Install dependencies
+pip install maturin gunicorn
 
 # Build and install the example app
 maturin develop
 
-# Run the python server
-python app.py
+# Run the python server with gunicorn
+gunicorn app:app --bind 127.0.0.1:8100
 ```
 The server will be running on `http://127.0.0.1:8100`.
 
-Test it returns "Hello from your Axum app!" :
+In a separate terminal, test it returns "Hello from your Axum app!" :
 
 ```bash
 curl http://127.0.0.1:8100 | grep "Hello from your Axum app!"

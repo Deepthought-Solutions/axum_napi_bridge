@@ -20,13 +20,13 @@ macro_rules! axum_wsgi {
             use $crate::pyo3::exceptions::PyTypeError;
             use $crate::pyo3::prelude::*;
             use $crate::pyo3::types::{PyAny, PyBytes, PyDict};
-            use $crate::tokio::runtime::Runtime;
+            use $crate::tokio::runtime::{Handle, Runtime};
             use $crate::tower::ServiceExt;
 
             #[pyclass]
             pub struct ResponseIterator {
                 body_stream: BodyStream<Body>,
-                rt: Runtime,
+                rt_handle: Handle,
             }
 
             #[pymethods]
@@ -36,16 +36,21 @@ macro_rules! axum_wsgi {
                 }
 
                 fn __next__(&mut self, py: Python) -> PyResult<Option<Py<PyBytes>>> {
-                    match self.rt.block_on(self.body_stream.next()) {
-                        Some(Ok(frame)) => {
-                            if let Some(chunk) = frame.data_ref() {
-                                return Ok(Some(PyBytes::new(py, chunk).into()));
+                    loop {
+                        match self.rt_handle.block_on(self.body_stream.next()) {
+                            Some(Ok(frame)) => {
+                                if let Some(chunk) = frame.data_ref() {
+                                    // WSGI spec requires that we don't yield empty chunks.
+                                    if !chunk.is_empty() {
+                                        return Ok(Some(PyBytes::new(py, chunk).into()));
+                                    }
+                                    // If chunk is empty, continue to the next frame.
+                                }
+                                // If not a data frame, continue to the next frame.
                             }
-                            // ignore other frame types
-                            self.__next__(py)
+                            Some(Err(e)) => return Err(PyTypeError::new_err(format!("body error: {}", e))),
+                            None => return Ok(None), // End of stream.
                         }
-                        Some(Err(e)) => Err(PyTypeError::new_err(format!("body error: {}", e))),
-                        None => Ok(None),
                     }
                 }
             }
@@ -61,7 +66,10 @@ macro_rules! axum_wsgi {
                 #[new]
                 fn new() -> PyResult<Self> {
                     let app = $app_creator();
-                    let rt = Runtime::new().unwrap();
+                    let rt = $crate::tokio::runtime::Builder::new_current_thread()
+                        .enable_all()
+                        .build()
+                        .unwrap();
                     Ok(AxumWsgi { app, rt })
                 }
 
@@ -140,7 +148,7 @@ macro_rules! axum_wsgi {
 
                     Ok(ResponseIterator {
                         body_stream: BodyStream::new(resp.into_body()),
-                        rt: Runtime::new().unwrap(),
+                        rt_handle: self.rt.handle().clone(),
                     })
                 }
             }
