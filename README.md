@@ -124,4 +124,11 @@ maturin develop
 # Run the python server
 python app.py
 ```
-The server will be running on `http://127.0.0.1:8000`.
+The server will be running on `http://127.0.0.1:8100`.
+
+Test it returns "Hello from your Axum app!" :
+
+```bash
+curl http://127.0.0.1:8100 | grep "Hello from your Axum app!"
+```
+

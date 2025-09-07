@@ -6,6 +6,6 @@ from example_axum_app import AxumWsgi
 app = AxumWsgi()
 
 # Create a simple WSGI server
-httpd = make_server('127.0.0.1', 8000, app)
-print("Serving on http://127.0.0.1:8000")
+httpd = make_server('127.0.0.1', 8100, app)
+print("Serving on http://127.0.0.1:8100")
 httpd.serve_forever()
