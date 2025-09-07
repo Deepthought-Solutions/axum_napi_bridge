@@ -23,8 +23,8 @@ def server():
     ]
 
     # Start gunicorn as a subprocess.
-    # We are in the `example/` directory, so `app.py` is in the current dir.
-    process = subprocess.Popen(command)
+    # We need to run it from the `example` directory so it can find the `app` module.
+    process = subprocess.Popen(command, cwd="example")
 
     # Give the server a moment to start and check if it's running.
     # We'll try to connect a few times before failing.
