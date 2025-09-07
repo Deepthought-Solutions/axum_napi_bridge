@@ -1,0 +1,13 @@
+
+cargo build
+
+python3 -m venv .venv
+
+pip install mathurin
+
+maturin develop --release
+
+maturin build --release
+
+
+

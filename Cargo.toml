@@ -1,0 +1,17 @@
+[package]
+name = "axum_wsgi"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "axum_wsgi"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.18", features = ["extension-module"] }
+axum = "0.7"
+http-body-util = "0.1"
+hyper = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tower = "0.5"
+
