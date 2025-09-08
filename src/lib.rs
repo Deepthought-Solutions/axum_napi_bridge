@@ -1,18 +1,17 @@
 // src/lib.rs
 use axum::{
-    body::Body,
-    http::{Request, HeaderMap},
-    response::Response,
+    body::{Body, Bytes},
+    http::{Request, header::{HeaderMap, HeaderName, HeaderValue}},
     routing::get,
     Router,
 };
-use hyper::body::to_bytes;
+use http_body_util::BodyExt;
 use once_cell::sync::OnceCell;
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
 use serde::Serialize;
-use std::convert::TryFrom;
 use tower::ServiceExt; // for `oneshot`
+
 
 // Create the global router once
 static ROUTER: OnceCell<Router> = OnceCell::new();
@@ -27,8 +26,8 @@ fn make_router() -> Router {
 fn headers_vec_to_map(h: &[(String, String)]) -> HeaderMap {
     let mut map = HeaderMap::new();
     for (k, v) in h {
-        if let Ok(name) = http::header::HeaderName::try_from(k.as_str()) {
-            if let Ok(value) = http::HeaderValue::try_from(v.as_str()) {
+        if let Ok(name) = HeaderName::try_from(k.as_str()) {
+            if let Ok(value) = HeaderValue::try_from(v.as_str()) {
                 map.append(name, value);
             }
         }
@@ -45,7 +44,7 @@ pub struct JsResponse {
 
 /// Initialize router once; called lazily
 fn init_router() {
-    ROUTER.get_or_init(|| make_router())
+    ROUTER.get_or_init(make_router);
 }
 
 /// This is the exported async function. napi will make it return a Promise in Node.
@@ -56,79 +55,44 @@ pub async fn handle_request(
     headers: Option<Vec<(String, String)>>,
     body: Option<Buffer>, // napi::Buffer -> Vec<u8>
 ) -> Result<String> {
-    // ensure router is initialized
     init_router();
-
     let router = ROUTER.get().expect("router initialized").clone();
-
-    // Build request
     let body_bytes = body.map(|b| b.to_vec()).unwrap_or_else(Vec::new);
-    let mut req_builder = Request::builder()
+
+    let mut request_builder = Request::builder()
         .method(method.as_str())
         .uri(path.as_str());
 
-    // Attach headers if any
-    if let Some(hdrs) = &headers {
-        let header_map = headers_vec_to_map(hdrs);
-        let (mut parts, _body) = req_builder
-            .body(())
-            .expect("builder body")
-            .into_parts(); // trick to get parts, we'll replace headers
-        parts.headers = header_map;
-        let request = Request::from_parts(parts, Body::from(body_bytes));
-        // run
-        let resp = router.oneshot(request).await.map_err(|e| {
-            napi::Error::from_reason(format!("router error: {}", e))
-        })?;
-
-        // extract response
-        let status = resp.status().as_u16();
-        let headers_out = resp
-            .headers()
-            .iter()
-            .map(|(k, v)| (k.as_str().to_string(), v.to_str().unwrap_or("").to_string()))
-            .collect::<Vec<_>>();
-        let bytes = to_bytes(resp.into_body())
-            .await
-            .map_err(|e| napi::Error::from_reason(format!("body error: {}", e)))?;
-        let body_text = String::from_utf8_lossy(&bytes).to_string();
-
-        let js_resp = JsResponse {
-            status,
-            headers: headers_out,
-            body: body_text,
-        };
-        let json = serde_json::to_string(&js_resp)
-            .map_err(|e| napi::Error::from_reason(format!("serde error: {}", e)))?;
-        return Ok(json);
-    } else {
-        // No headers path (simpler)
-        let request = req_builder
-            .body(Body::from(body_bytes))
-            .map_err(|e| napi::Error::from_reason(format!("request build: {}", e)))?;
-
-        let resp = router.oneshot(request).await.map_err(|e| {
-            napi::Error::from_reason(format!("router error: {}", e))
-        })?;
-
-        let status = resp.status().as_u16();
-        let headers_out = resp
-            .headers()
-            .iter()
-            .map(|(k, v)| (k.as_str().to_string(), v.to_str().unwrap_or("").to_string()))
-            .collect::<Vec<_>>();
-        let bytes = to_bytes(resp.into_body())
-            .await
-            .map_err(|e| napi::Error::from_reason(format!("body error: {}", e)))?;
-        let body_text = String::from_utf8_lossy(&bytes).to_string();
-
-        let js_resp = JsResponse {
-            status,
-            headers: headers_out,
-            body: body_text,
-        };
-        let json = serde_json::to_string(&js_resp)
-            .map_err(|e| napi::Error::from_reason(format!("serde error: {}", e)))?;
-        return Ok(json);
+    if let Some(hdrs) = headers {
+        let header_map = headers_vec_to_map(&hdrs);
+        if let Some(headers) = request_builder.headers_mut() {
+            *headers = header_map;
+        }
     }
+
+    let request = request_builder
+        .body(Body::from(body_bytes))
+        .map_err(|e| napi::Error::from_reason(format!("request build: {}", e)))?;
+
+    let resp = router.oneshot(request).await.map_err(|e| {
+        napi::Error::from_reason(format!("router error: {}", e))
+    })?;
+
+    let status = resp.status().as_u16();
+    let headers_out = resp
+        .headers()
+        .iter()
+        .map(|(k, v)| (k.as_str().to_string(), v.to_str().unwrap_or("").to_string()))
+        .collect::<Vec<_>>();
+    let bytes: Bytes = resp.into_body().collect().await.map_err(|e| napi::Error::from_reason(format!("body error: {}", e)))?.to_bytes();
+    let body_text = String::from_utf8_lossy(&bytes).to_string();
+
+    let js_resp = JsResponse {
+        status,
+        headers: headers_out,
+        body: body_text,
+    };
+    let json = serde_json::to_string(&js_resp)
+        .map_err(|e| napi::Error::from_reason(format!("serde error: {}", e)))?;
+    Ok(json)
 }
