@@ -11,9 +11,11 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3-dev \
+    python3-pip \
     build-essential \
     curl \
-    apache2 && \
+    apache2 passenger \
+    libapache2-mod-passenger && \
     a2enmod passenger && \
     # Disable nginx and enable apache2
     rm -f /etc/service/nginx/down && \
@@ -22,23 +24,30 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # 4. Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
+
 
 # 5. Create app directory and copy application
 WORKDIR /home/app/axum-wsgi
 COPY --chown=app:app . .
 
 # 6. Install Python dependencies
-RUN pip3 install --no-cache-dir maturin
+# RUN pip3 install --no-cache-dir maturin
 
 # 7. Build the Rust extension
 # The user 'app' needs a home directory to exist for cargo to work
-RUN mkdir -p /home/app && chown -R app:app /home/app /root/.cargo
+RUN mkdir -p /home/app && chown -R app:app /home/app
 USER app
+ENV HOME "/home/app"
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH "/home/app/.cargo/bin:${PATH}"
 WORKDIR /home/app/axum-wsgi/example
-RUN maturin develop
+RUN python3 -m venv .venv && \
+    . .venv/bin/activate && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir maturin && \
+    maturin develop
 USER root
+ENV HOME "/root"
 WORKDIR /home/app/axum-wsgi
 
 # 8. Configure Apache
