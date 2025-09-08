@@ -3,3 +3,4 @@ target
 *.so
 *.pyc
 node_modules
+*.node
