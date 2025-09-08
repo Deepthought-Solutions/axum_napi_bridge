@@ -14,19 +14,20 @@ macro_rules! axum_wsgi {
             use super::*;
             use $crate::axum::body::Body;
             use $crate::axum::Router;
-            use $crate::futures_util::StreamExt;
-            use $crate::http_body_util::BodyStream;
+            use $crate::http_body_util::BodyExt;
             use $crate::hyper::{body::Incoming, Request, Response};
             use $crate::pyo3::exceptions::PyTypeError;
             use $crate::pyo3::prelude::*;
             use $crate::pyo3::types::{PyAny, PyBytes, PyDict};
-            use $crate::tokio::runtime::{Handle, Runtime};
+            use $crate::tokio::runtime::Runtime;
             use $crate::tower::ServiceExt;
+            use std::io::{Cursor, Read};
+
+            const CHUNK_SIZE: usize = 8192;
 
             #[pyclass]
             pub struct ResponseIterator {
-                body_stream: BodyStream<Body>,
-                rt_handle: Handle,
+                cursor: Cursor<Vec<u8>>,
             }
 
             #[pymethods]
@@ -36,21 +37,13 @@ macro_rules! axum_wsgi {
                 }
 
                 fn __next__(&mut self, py: Python) -> PyResult<Option<Py<PyBytes>>> {
-                    loop {
-                        match self.rt_handle.block_on(self.body_stream.next()) {
-                            Some(Ok(frame)) => {
-                                if let Some(chunk) = frame.data_ref() {
-                                    // WSGI spec requires that we don't yield empty chunks.
-                                    if !chunk.is_empty() {
-                                        return Ok(Some(PyBytes::new(py, chunk).into()));
-                                    }
-                                    // If chunk is empty, continue to the next frame.
-                                }
-                                // If not a data frame, continue to the next frame.
-                            }
-                            Some(Err(e)) => return Err(PyTypeError::new_err(format!("body error: {}", e))),
-                            None => return Ok(None), // End of stream.
+                    let mut chunk = vec![0; CHUNK_SIZE];
+                    match self.cursor.read(&mut chunk) {
+                        Ok(0) => Ok(None), // End of stream
+                        Ok(n) => {
+                            Ok(Some(PyBytes::new(py, &chunk[..n]).into()))
                         }
+                        Err(e) => Err(PyTypeError::new_err(format!("Error reading body chunk: {}", e))),
                     }
                 }
             }
@@ -66,7 +59,7 @@ macro_rules! axum_wsgi {
                 #[new]
                 fn new() -> PyResult<Self> {
                     let app = $app_creator();
-                    let rt = $crate::tokio::runtime::Builder::new_current_thread()
+                    let rt = $crate::tokio::runtime::Builder::new_multi_thread()
                         .enable_all()
                         .build()
                         .unwrap();
@@ -91,6 +84,7 @@ macro_rules! axum_wsgi {
                         .get_item("PATH_INFO")
                         .and_then(|p| p.extract::<&str>().ok())
                         .unwrap_or("/");
+
                     let query = environ
                         .get_item("QUERY_STRING")
                         .and_then(|q| q.extract::<&str>().ok())
@@ -128,9 +122,12 @@ macro_rules! axum_wsgi {
                     let req = req_builder.body(body).unwrap();
 
                     let app = self.app.clone();
-                    let resp: Response<Body> = self.rt.block_on(async move {
+                    let (resp, body_bytes) = self.rt.block_on(async move {
                         let svc = app.into_service();
-                        svc.oneshot(req).await.unwrap()
+                        let resp = svc.oneshot(req).await.unwrap();
+                        let (parts, body) = resp.into_parts();
+                        let body_bytes = body.collect().await.unwrap().to_bytes();
+                        (Response::from_parts(parts, Body::empty()), body_bytes.to_vec())
                     });
 
                     let status_line = format!(
@@ -147,8 +144,7 @@ macro_rules! axum_wsgi {
                     start_response.call1((status_line, headers))?;
 
                     Ok(ResponseIterator {
-                        body_stream: BodyStream::new(resp.into_body()),
-                        rt_handle: self.rt.handle().clone(),
+                        cursor: Cursor::new(body_bytes),
                     })
                 }
             }
