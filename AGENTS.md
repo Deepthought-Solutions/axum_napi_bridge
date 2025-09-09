@@ -26,7 +26,7 @@ The project uses a combination of Rust's Cargo and Node.js's npm.
 
 4. **Preferred testing method**
 
-    Using passenger :
+    Build and run the sample app using passenger :
     ```bash
     cd sample
     npm install
