@@ -5,20 +5,31 @@
   "main": "index.js",
   "scripts": {
     "build": "napi build --release",
-    "test": "node test.js",
-    "test:e2e": "playwright test"
+    "test": "ava",
+    "test:e2e": "playwright test",
+    "bench": "ts-node benchmark/bridge_bench.ts",
+    "bench:concurrent": "node benchmark/concurrent_bench.mjs"
   },
   "dependencies": {
     "@napi-rs/cli": "^3.1.5"
   },
-  "scripts": {
-    "build": "napi build --release",
-    "test": "node test.js",
-    "test:e2e": "playwright test",
-    "bench:concurrent": "node benchmark/concurrent_bench.mjs"
-  },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "ava": "^5.3.1",
+    "ts-node": "^10.9.1",
+    "tinybench": "^2.4.0",
+    "typescript": "^5.2.2"
+  },
+  "ava": {
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "files": [
+      "tests/bridge.spec.ts"
+    ]
   }
 }
