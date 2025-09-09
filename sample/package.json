@@ -7,7 +7,7 @@
     "build": "napi build --release",
     "test": "ava",
     "test:e2e": "playwright test",
-    "bench": "ts-node benchmark/bridge_bench.ts",
+    "bench": "node --loader ts-node/esm --import @oxc-node/core/register benchmark/bridge_bench.ts",
     "bench:concurrent": "node benchmark/concurrent_bench.mjs"
   },
   "dependencies": {

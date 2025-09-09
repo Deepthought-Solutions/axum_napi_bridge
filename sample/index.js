@@ -64,6 +64,7 @@ const isMuslFromChildProcess = () => {
 }
 
 function requireNative() {
+  return require('./index.node');
   if (process.env.NAPI_RS_NATIVE_LIBRARY_PATH) {
     try {
       nativeBinding = require(process.env.NAPI_RS_NATIVE_LIBRARY_PATH);
@@ -393,4 +394,4 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
-module.exports.plus100 = nativeBinding.plus100
+module.exports.handleRequest = nativeBinding.handleRequest
