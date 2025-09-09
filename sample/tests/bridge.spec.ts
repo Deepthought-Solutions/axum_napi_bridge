@@ -1,5 +1,5 @@
 import test from 'ava'
-import { handleRequest } from '../index.node'
+import { handleRequest } from '../index.js'
 
 test('should get a successful response from the root route', async (t) => {
   const response = await handleRequest('GET', '/', null, null)

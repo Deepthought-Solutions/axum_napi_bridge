@@ -1,5 +1,5 @@
 import { Bench } from 'tinybench'
-import { handleRequest } from '../../index.js'
+import { handleRequest } from '../index.js'
 
 const b = new Bench()
 
