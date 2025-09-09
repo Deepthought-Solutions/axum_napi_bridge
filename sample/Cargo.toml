@@ -7,13 +7,13 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-axum = "0.7"
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
-axum_napi_bridge = { path = ".." }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-napi = { version = "3.0.0", features = ["tokio_rt", "serde-json"] }
-napi-derive = "3.0.0"
+axum = { workspace = true }
+tokio = { workspace = true }
+axum_napi_bridge = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+napi = { workspace = true }
+napi-derive = { workspace = true }
 
 [build-dependencies]
-napi-build = "2"
+napi-build = { workspace = true }

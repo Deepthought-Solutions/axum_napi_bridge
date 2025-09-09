@@ -1,12 +1,9 @@
-[package]
-name = "axum_napi_bridge"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = [
+    "sample",
+]
 
-[lib]
-crate-type = ["cdylib"]
-
-[dependencies]
+[workspace.dependencies]
 axum = "0.7.5"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -15,11 +12,33 @@ once_cell = "1.19"
 tower = { version = "0.5.0", features = ["util"] }
 hyper = { version = "1.4.1", features = ["full"] }
 http-body-util = "0.1.2"
-napi = {version = "3.0.0", features = ["tokio_rt", "serde-json"]}
+napi = { version = "3.0.0", features = ["tokio_rt", "serde-json"] }
 napi-derive = "3.0.0"
+napi-build = "2"
+axum_napi_bridge = { path = ".", version = "0.1.0" }
+
+[package]
+name = "axum_napi_bridge"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+once_cell = { workspace = true }
+tower = { workspace = true }
+hyper = { workspace = true }
+http-body-util = { workspace = true }
+napi = { workspace = true }
+napi-derive = { workspace = true }
 
 [build-dependencies]
-napi-build = "2"
+napi-build = { workspace = true }
 
 [profile.release]
 lto = true
