@@ -21,6 +21,22 @@ axum_napi_bridge = { path = ".", version = "0.1.0" }
 name = "axum_napi_bridge"
 version = "0.1.0"
 edition = "2021"
+description = "A bridge to use axum handlers in Node.js"
+license = "MIT"
+documentation = "https://docs.rs/axum_napi_bridge"
+homepage = "https://github.com/your-username/axum_napi_bridge"
+repository = "https://github.com/your-username/axum_napi_bridge"
+exclude = [
+    "sample/",
+    ".github/",
+    "apache.conf",
+    "index.d.ts",
+    "index.js",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json",
+    "wasi-worker-browser.mjs",
+]
 
 [lib]
 crate-type = ["cdylib", "rlib"]

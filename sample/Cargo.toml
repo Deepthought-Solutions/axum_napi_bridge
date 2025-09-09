@@ -2,9 +2,11 @@
 name = "example-axum-app"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
 
 [lib]
 crate-type = ["cdylib"]
+path = "src/bridge.rs"
 
 [dependencies]
 axum = { workspace = true }
@@ -16,4 +18,4 @@ napi = { workspace = true }
 napi-derive = { workspace = true }
 
 [build-dependencies]
-napi-build = { workspace = true }
+napi-build = "2"
