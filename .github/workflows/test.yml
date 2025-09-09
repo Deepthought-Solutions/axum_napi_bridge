@@ -22,7 +22,7 @@ jobs:
       - name: Build
         run: napi build --release
       - name: Run tests
-        run: 
+        run: |
           cd sample
           npm test
 
