@@ -11,7 +11,14 @@
   "dependencies": {
     "@napi-rs/cli": "^3.1.5"
   },
+  "scripts": {
+    "build": "napi build --release",
+    "test": "node test.js",
+    "test:e2e": "playwright test",
+    "bench:concurrent": "node benchmark/concurrent_bench.mjs"
+  },
   "devDependencies": {
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "^1.55.0",
+    "node-fetch": "^3.3.2"
   }
 }
