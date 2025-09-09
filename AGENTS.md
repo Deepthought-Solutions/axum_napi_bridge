@@ -24,6 +24,17 @@ The project uses a combination of Rust's Cargo and Node.js's npm.
     ```
     This command compiles the Rust code into a `.node` file that can be loaded by Node.js.
 
+4. **Preferred testing method**
+
+    Using passenger :
+    ```bash
+    cd sample
+    npm install
+    napi build
+    passenger start --app-type node --startup-file server.js &
+    curl http://172.17.0.3:3000/test | grep "This is a test route."
+    ```
+
 ## Development Notes
 
 -   **Dependency Management:** The project depends on `axum`, `hyper`, and `tokio`. Care must be taken to ensure that the versions of these crates are compatible. The `Cargo.toml` file has been configured with compatible versions. If you need to update a dependency, be sure to check for compatibility with the rest of the stack.
