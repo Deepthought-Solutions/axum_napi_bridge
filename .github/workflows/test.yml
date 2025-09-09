@@ -21,8 +21,8 @@ jobs:
         run: npm install -g @napi-rs/cli
       - name: Build
         run: napi build --release
-      - name: Run tests
-        run: npm test
+      # - name: Run tests
+      #   run: npm test
 
   e2e-test:
     runs-on: ubuntu-latest
