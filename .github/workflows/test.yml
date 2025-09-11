@@ -32,6 +32,10 @@ jobs:
         run: |
           cd sample
           npm run build
+      - name: Install Playwright browsers
+        run: |
+          cd sample
+          npx playwright install --with-deps
       - name: Run unit tests
         run: |
           cd sample

@@ -1,8 +1,5 @@
 import http from 'http'
-import { createRequire } from 'module'
-
-const require = createRequire(import.meta.url)
-const { handleRequest } = require('./index.js')
+import { handleRequest } from './index.mjs'
 
 const server = http.createServer(async (req, res) => {
   const chunks = []

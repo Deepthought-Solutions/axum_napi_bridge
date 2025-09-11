@@ -1,5 +1,5 @@
 import http from 'http'
-import { handleRequest } from './index.js'
+import { handleRequest } from './index.mjs'
 
 const server = http.createServer(async (req, res) => {
   const chunks: Buffer[] = []

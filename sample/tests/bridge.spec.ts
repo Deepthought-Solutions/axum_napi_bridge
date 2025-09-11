@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { handleRequest } from '../index.js'
+import { handleRequest } from '../index.mjs'
 
 test('should get a successful response from the root route', async () => {
   const response = await handleRequest('GET', '/', null, null)
