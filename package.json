@@ -46,6 +46,7 @@
     "format:rs": "cargo fmt",
     "lint": "oxlint .",
     "prepublishOnly": "napi prepublish -t npm",
+    "test": "cd sample && npm test",
     "version": "napi version",
     "prepare": "husky"
   },
