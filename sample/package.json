@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "napi build --release",
-    "test:e2e": "playwright test",
+    "test": "playwright test tests/bridge.spec.ts",
+    "test:e2e": "playwright test tests/example.spec.mjs",
     "bench": "npx tsc benchmark/bridge_bench.ts benchmark/express_server.ts benchmark/koa_server.ts --outDir benchmark --target es2022 --module es2022 --esModuleInterop --skipLibCheck --moduleResolution node && node benchmark/bridge_bench.js",
     "bench:concurrent": "node benchmark/concurrent_bench.mjs"
   },

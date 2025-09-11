@@ -32,7 +32,7 @@ jobs:
         run: |
           cd sample
           npm run build
-      - name: Run sample tests
+      - name: Run unit tests
         run: |
           cd sample
           npm test
@@ -61,7 +61,11 @@ jobs:
         run: |
           cd sample
           npm run build
-      - name: Run end-to-end tests
+      - name: Install Playwright browsers
+        run: |
+          cd sample
+          npx playwright install --with-deps
+      - name: Run E2E tests
         run: |
           cd sample
           npm run test:e2e
