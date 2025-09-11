@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 
 async function run() {
   console.log('Starting server...')
-  const server = spawn('node', ['server.js'], { detached: true })
+  const server = spawn('npx', ['tsx', 'server.ts'], { detached: true })
 
   // Wait for the server to start
   await new Promise((resolve) => setTimeout(resolve, 2000))
@@ -15,7 +15,7 @@ async function run() {
   const startTime = Date.now()
 
   for (let i = 0; i < numRequests; i++) {
-    requests.push(fetch('http://127.0.0.1:3000/concurrent-test'))
+    requests.push(fetch('http://127.0.0.1:3001/concurrent-test'))
   }
 
   try {

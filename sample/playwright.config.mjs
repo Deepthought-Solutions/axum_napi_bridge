@@ -20,7 +20,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'node server.js',
+    command: 'npx tsx server.ts',
     url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
   },

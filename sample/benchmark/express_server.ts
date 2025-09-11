@@ -1,4 +1,4 @@
-const express = require('express')
+import express from 'express'
 
 const app = express()
 
@@ -28,21 +28,29 @@ app.get('/concurrent-test', (req, res) => {
   }, 50)
 })
 
+interface BenchResponse {
+  status: number
+  headers: { 'content-type': string }
+  body: string
+}
+
 // Export for benchmarking use
-function handleExpressRequest(method, path) {
+function handleExpressRequest(method: string, path: string): Promise<string> {
   return new Promise((resolve) => {
+    let response: BenchResponse
+    
     if (method === 'GET' && path === '/') {
-      resolve(JSON.stringify({
+      response = {
         status: 200,
         headers: { 'content-type': 'application/json' },
         body: 'Hello from the example app!'
-      }))
+      }
     } else if (method === 'GET' && path === '/test') {
-      resolve(JSON.stringify({
+      response = {
         status: 200,
         headers: { 'content-type': 'application/json' },
         body: 'This is a test route.'
-      }))
+      }
     } else if (method === 'GET' && path === '/concurrent-test') {
       setTimeout(() => {
         resolve(JSON.stringify({
@@ -51,14 +59,17 @@ function handleExpressRequest(method, path) {
           body: 'Concurrent test route.'
         }))
       }, 50)
+      return
     } else {
-      resolve(JSON.stringify({
+      response = {
         status: 404,
         headers: { 'content-type': 'application/json' },
         body: 'Not Found'
-      }))
+      }
     }
+    
+    resolve(JSON.stringify(response))
   })
 }
 
-module.exports = { app, handleExpressRequest }
+export { app, handleExpressRequest }
