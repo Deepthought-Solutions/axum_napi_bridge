@@ -1,0 +1,37 @@
+# Dockerfile for running the axum_napi_bridge sample with Apache + Phusion Passenger
+FROM phusion/passenger-apache2-nodejs:3.0.4
+
+# Set environment variables
+ENV HOME=/root
+
+# Use baseimage-docker's init process
+CMD ["/sbin/my_init"]
+
+# Enable SSH (optional, for debugging)
+RUN rm -f /etc/service/sshd/down
+
+# Create application directory
+RUN mkdir -p /home/app
+WORKDIR /home/app
+
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Install npm dependencies
+RUN npm ci
+
+# Copy the pre-built native module and other necessary files
+COPY index.* ./
+COPY server.cjs ./
+
+# Copy Apache virtual host configuration
+COPY apache_passenger.conf /etc/apache2/sites-available/000-default.conf
+
+# Set proper permissions
+RUN chown -R app:app /home/app/webapp
+
+# Expose port
+EXPOSE 80
+
+# Clean up
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

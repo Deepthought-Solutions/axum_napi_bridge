@@ -1,20 +1,23 @@
 import http from 'http'
-import { handleRequest } from './index.js'
+import { createRequire } from 'module'
+
+const require = createRequire(import.meta.url)
+const { handleRequest } = require('./index.js')
 
 const server = http.createServer(async (req, res) => {
-  const chunks: Buffer[] = []
+  const chunks = []
   for await (const chunk of req) {
-    chunks.push(chunk as Buffer)
+    chunks.push(chunk)
   }
   const body = Buffer.concat(chunks)
 
-  const headers: [string, string][] = []
+  const headers = []
   for (let i = 0; i < req.rawHeaders.length; i += 2) {
     headers.push([req.rawHeaders[i], req.rawHeaders[i + 1]])
   }
 
   try {
-    const responseJson = await handleRequest(req.method!, req.url!, headers, body.length > 0 ? body : null)
+    const responseJson = await handleRequest(req.method, req.url, headers, body.length > 0 ? body : null)
     const response = JSON.parse(responseJson)
 
     res.statusCode = response.status
