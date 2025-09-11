@@ -37,7 +37,7 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "bench": "node --loader ts-node/esm --import @oxc-node/core/register benchmark/bench.ts",
+    "bench": "cd sample && npm run bench",
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
     "format": "run-p format:prettier format:rs format:toml",
