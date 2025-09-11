@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "An example Axum app using the axum-napi-bridge.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "build": "napi build --release",
     "test:e2e": "playwright test",
