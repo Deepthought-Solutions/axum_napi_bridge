@@ -1,5 +1,5 @@
 # Dockerfile for running the axum_napi_bridge sample with Apache + Phusion Passenger
-FROM phusion/passenger-apache2-nodejs:3.0.4
+FROM ghcr.io/phusion/passenger-apache2-nodejs:3.0.4
 
 # Set environment variables
 ENV HOME=/root

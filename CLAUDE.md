@@ -94,7 +94,17 @@ The sample app demonstrates the complete usage pattern:
 
 - **Unit tests**: Use `ava` framework to test the bridge directly via `handleRequest` function
 - **Integration tests**: Use Playwright for end-to-end testing with the HTTP server
+- **Passenger tests**: **CRITICAL REQUIREMENT** - Test deployment with Phusion Passenger (both Nginx and Apache variants) using Docker containers. These tests are mandatory and verify production deployment scenarios
 - **Benchmarks**: Performance testing using `tinybench` for direct calls and concurrent request testing
+
+### Phusion Passenger Testing
+
+The library **must** be tested with Phusion Passenger as it's a primary deployment target:
+
+- **`npm run test:passenger`**: Tests Nginx + Passenger deployment using `Dockerfile.passenger`
+- **`npm run test:passenger:apache`**: Tests Apache + Passenger deployment using `Dockerfile.apache`
+- Both tests use Docker containers with ghcr.io/phusion images to simulate production environments
+- Passenger tests are included in CI/CD pipeline and cannot be removed or disabled
 
 ## Key Implementation Details
 

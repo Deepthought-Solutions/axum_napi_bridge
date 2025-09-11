@@ -1,5 +1,5 @@
 # Dockerfile for running the axum_napi_bridge sample with Phusion Passenger
-FROM phusion/passenger-nodejs:3.0.4
+FROM ghcr.io/phusion/passenger-nodejs:3.0.4
 
 # Enable passenger and nginx
 RUN rm -f /etc/service/nginx/down

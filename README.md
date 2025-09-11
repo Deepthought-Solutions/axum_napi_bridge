@@ -4,6 +4,15 @@ This library provides a macro to easily expose an [Axum](https://github.com/toki
 
 This allows you to write high-performance, memory-safe web services in Rust and seamlessly integrate them into a Node.js environment.
 
+## ✅ Production-Ready with Phusion Passenger
+
+**axum_napi_bridge** is fully tested and compatible with **Phusion Passenger**, the industry-standard application server for production Node.js deployments. The library supports both:
+
+- **Nginx + Passenger** - High-performance reverse proxy with automatic process management
+- **Apache + Passenger** - Full-featured web server with enterprise-grade features
+
+All Passenger configurations are thoroughly tested in our CI/CD pipeline using Docker containers to ensure production reliability.
+
 ## How it Works
 
 The library provides a macro, `napi_axum_bridge!`, which generates the necessary N-API boilerplate to bridge your Axum `Router` to Node.js. It creates an exported function `handle_request` that can be called from JavaScript with request details.
@@ -182,4 +191,50 @@ main().catch(err => {
   console.error(err);
   process.exit(1);
 });
+```
+
+## Production Deployment with Phusion Passenger
+
+### Nginx + Passenger
+
+The bridge is fully compatible with Nginx + Passenger for high-performance production deployments:
+
+```javascript
+// server.js
+const { handleRequest } = require('./index.node')
+const http = require('http')
+
+const server = http.createServer(async (req, res) => {
+  try {
+    const body = await new Promise((resolve) => {
+      let data = ''
+      req.on('data', chunk => data += chunk)
+      req.on('end', () => resolve(data || null))
+    })
+
+    const result = await handleRequest(req.method, req.url, req.headers, body)
+    const response = JSON.parse(result)
+    
+    res.writeHead(response.status, response.headers)
+    res.end(response.body)
+  } catch (error) {
+    res.writeHead(500, { 'Content-Type': 'text/plain' })
+    res.end('Internal Server Error')
+  }
+})
+
+server.listen(process.env.PORT || 3000)
+```
+
+### Apache + Passenger
+
+The bridge also works seamlessly with Apache + Passenger for enterprise environments requiring advanced web server features.
+
+### Docker Deployment
+
+Pre-built Docker configurations are available in the repository:
+- `Dockerfile.passenger` - Nginx + Passenger setup
+- `Dockerfile.apache` - Apache + Passenger setup
+
+Both configurations use official Phusion Passenger base images and are tested in CI/CD.
 ```
