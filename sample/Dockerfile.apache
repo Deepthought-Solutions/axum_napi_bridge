@@ -1,14 +1,16 @@
-# Dockerfile for running the axum_napi_bridge sample with Apache + Phusion Passenger
-FROM ghcr.io/phusion/passenger-apache2-nodejs:3.0.4
+# Dockerfile for running the axum_napi_bridge sample with Apache (alternative to avoid Docker Hub limitations)
+FROM ubuntu:22.04
 
-# Set environment variables
-ENV HOME=/root
+# Install Node.js 20 and Apache
+RUN apt-get update && apt-get install -y \
+    curl \
+    apache2 \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
-# Use baseimage-docker's init process
-CMD ["/sbin/my_init"]
-
-# Enable SSH (optional, for debugging)
-RUN rm -f /etc/service/sshd/down
+# Enable required Apache modules
+RUN a2enmod proxy proxy_http rewrite headers
 
 # Create application directory
 RUN mkdir -p /home/app
@@ -25,13 +27,18 @@ COPY index.* ./
 COPY server.cjs ./
 
 # Copy Apache virtual host configuration
-COPY apache_passenger.conf /etc/apache2/sites-available/000-default.conf
+COPY apache_proxy.conf /etc/apache2/sites-available/000-default.conf
 
-# Set proper permissions
-RUN chown -R app:app /home/app/webapp
+# Create startup script
+RUN echo '#!/bin/bash\n\
+# Start Apache in background\n\
+apache2ctl start\n\
+# Start Node.js app\n\
+exec node server.cjs\n\
+' > /start.sh && chmod +x /start.sh
 
 # Expose port
 EXPOSE 80
 
-# Clean up
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Start both Apache and the Node.js app
+CMD ["/start.sh"]

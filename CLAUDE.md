@@ -103,8 +103,19 @@ The library **must** be tested with Phusion Passenger as it's a primary deployme
 
 - **`npm run test:passenger`**: Tests Nginx + Passenger deployment using `Dockerfile.passenger`
 - **`npm run test:passenger:apache`**: Tests Apache + Passenger deployment using `Dockerfile.apache`
-- Both tests use Docker containers with ghcr.io/phusion images to simulate production environments
+- Both tests use Docker containers to simulate production environments
 - Passenger tests are included in CI/CD pipeline and cannot be removed or disabled
+
+### Docker Image Constraints
+
+When working with Docker images in this project:
+- **Avoid Docker Hub (docker.io) images** when possible due to rate limiting and pull restrictions in CI/CD environments
+- **Prefer alternative registries** that do not apply usage limitations:
+  - GitHub Container Registry (ghcr.io) 
+  - Quay.io (quay.io)
+  - Other public registries without strict rate limits
+- If Docker Hub images must be used, ensure they are cached or mirrored to avoid CI failures
+- For Phusion Passenger images, use the most reliable registry available that provides the required tags
 
 ## Key Implementation Details
 
