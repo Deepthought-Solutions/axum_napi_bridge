@@ -35,8 +35,8 @@ test.beforeAll(async () => {
   await new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       buildProcess.kill()
-      reject(new Error('Docker build timed out after 4 minutes'))
-    }, 240000)
+      reject(new Error('Docker build timed out after 8 minutes'))
+    }, 480000)
     
     buildProcess.on('close', (code) => {
       clearTimeout(timeout)
