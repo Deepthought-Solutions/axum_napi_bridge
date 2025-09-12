@@ -3,15 +3,16 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  testMatch: '**/*.spec.{mjs,ts}',
-  fullyParallel: true,
+  testMatch: '**/passenger.spec.ts',
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  workers: 1, // Run passenger tests sequentially
+  reporter: process.env.CI ? 'list' : 'html',
+  timeout: 720000, // 12 minute timeout for Docker operations
   use: {
-    baseURL: 'http://localhost:3001',
     trace: 'on-first-retry',
+    headless: process.env.CI ? true : false,
   },
   projects: [
     {
@@ -19,9 +20,5 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'npx tsx server.ts',
-    url: 'http://localhost:3001',
-    reuseExistingServer: !process.env.CI,
-  },
+  // No webServer config - tests will manage Docker themselves
 });
