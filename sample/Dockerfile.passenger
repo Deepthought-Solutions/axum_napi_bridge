@@ -1,26 +1,22 @@
 # Dockerfile for running the axum_napi_bridge sample with Nginx
-FROM ubuntu:22.04
+FROM node:20-slim
 
-# Install Node.js 20 and nginx
+# Install nginx
 RUN apt-get update && apt-get install -y \
-    curl \
     nginx \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up the application  
 WORKDIR /home/app
 
-# Copy package files first for better caching
-COPY package*.json ./
-
-# Install npm dependencies  
-RUN npm ci
-
 # Copy the pre-built native module and other necessary files
-COPY index.* ./
+COPY index.js ./
+COPY index.node ./
+COPY index.d.ts ./
 COPY server.cjs ./
+
+# Create a minimal package.json without "type": "module" for CommonJS compatibility
+RUN echo '{"name": "axum-napi-docker", "version": "1.0.0"}' > package.json
 
 # Copy nginx config for proxying
 COPY nginx_proxy.conf /etc/nginx/sites-available/default

@@ -107,11 +107,11 @@ jobs:
       - name: Run Passenger (Nginx) tests
         run: |
           cd sample
-          npm run test:passenger
+          timeout 720 npm run test:passenger
       - name: Run Passenger (Apache) tests
         run: |
           cd sample
-          npm run test:passenger:apache
+          timeout 720 npm run test:passenger:apache
 
   benchmark:
     runs-on: ubuntu-latest

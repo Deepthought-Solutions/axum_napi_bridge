@@ -94,6 +94,9 @@ The sample app demonstrates the complete usage pattern:
 
 - **Unit tests**: Use `ava` framework to test the bridge directly via `handleRequest` function
 - **Integration tests**: Use Playwright for end-to-end testing with the HTTP server
+  - **CI Mode**: Run Playwright tests in headless mode without browser reports using `--headed=false --reporter=list`
+  - Local development can use full browser features, but CI must run headless
+  - **Note**: To test locally as Claude acting as CI, set environment variable `CI=true`
 - **Passenger tests**: **CRITICAL REQUIREMENT** - Test deployment with Phusion Passenger (both Nginx and Apache variants) using Docker containers. These tests are mandatory and verify production deployment scenarios
 - **Benchmarks**: Performance testing using `tinybench` for direct calls and concurrent request testing
 
