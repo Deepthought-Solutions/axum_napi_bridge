@@ -1,15 +1,17 @@
-# Dockerfile for running the axum_napi_bridge sample with Apache
-FROM node:20-slim
+# Dockerfile for running the axum_napi_bridge sample with Phusion Passenger + Apache  
+# Using passenger-nodejs base which includes Passenger but configuring Apache
+FROM ghcr.io/phusion/passenger-nodejs:3.0.0
 
-# Install Apache
-RUN apt-get update && apt-get install -y \
-    apache2 \
-    && rm -rf /var/lib/apt/lists/*
+# Install Apache2 and Passenger Apache module
+RUN apt-get update && \
+    apt-get install -y apache2 apache2-dev libapache2-mod-passenger && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Enable required Apache modules
-RUN a2enmod proxy proxy_http rewrite headers
+# Configure Apache with Passenger module
+RUN a2enmod passenger
 
-# Create application directory
+# Set up the application directory
 RUN mkdir -p /home/app
 WORKDIR /home/app
 
@@ -22,19 +24,25 @@ COPY server.cjs ./
 # Create a minimal package.json without "type": "module" for CommonJS compatibility
 RUN echo '{"name": "axum-napi-docker", "version": "1.0.0"}' > package.json
 
-# Copy Apache virtual host configuration
-COPY apache_proxy.conf /etc/apache2/sites-available/000-default.conf
+# Copy Passenger Apache configuration
+COPY apache_passenger.conf /etc/apache2/sites-enabled/000-default.conf
 
-# Create startup script
-RUN echo '#!/bin/bash\n\
-# Start Apache in background\n\
-apache2ctl start\n\
-# Start Node.js app\n\
-exec node server.cjs\n\
-' > /start.sh && chmod +x /start.sh
+# Remove default apache sites
+RUN rm -f /etc/apache2/sites-enabled/000-default.conf.disabled /etc/apache2/sites-enabled/default-ssl.conf
+
+# Create app user and set permissions (check if user exists first)
+RUN getent group app || groupadd -r app
+RUN getent passwd app || useradd -r -g app app
+RUN chown -R app:app /home/app
+
+# Disable nginx and enable apache2 service
+RUN touch /etc/service/nginx/down
+RUN mkdir -p /etc/service/apache2
+RUN echo '#!/bin/bash\nexec /usr/sbin/apache2ctl -DFOREGROUND' > /etc/service/apache2/run && \
+    chmod +x /etc/service/apache2/run
 
 # Expose port
 EXPOSE 80
 
-# Start both Apache and the Node.js app
-CMD ["/start.sh"]
+# Use Phusion's init system
+CMD ["/sbin/my_init"]

@@ -15,43 +15,8 @@ let dockerProcess: ChildProcess | null = null
 let containerId: string | null = null
 
 test.beforeAll(async () => {
-  console.log('Starting Docker build for Passenger test...')
-  
-  // Build the Docker image
-  const buildProcess = spawn('docker', ['build', '-f', 'Dockerfile.passenger', '-t', 'axum-napi-passenger', '.'], {
-    cwd: process.cwd(),
-    stdio: ['ignore', 'pipe', 'pipe']
-  })
-  
-  // Capture output for debugging
-  let buildOutput = ''
-  buildProcess.stdout?.on('data', (data) => {
-    buildOutput += data.toString()
-  })
-  buildProcess.stderr?.on('data', (data) => {
-    buildOutput += data.toString()
-  })
-  
-  await new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      buildProcess.kill()
-      reject(new Error('Docker build timed out after 10 minutes'))
-    }, 600000)
-    
-    buildProcess.on('close', (code) => {
-      clearTimeout(timeout)
-      if (code === 0) {
-        console.log('Docker build completed successfully')
-        resolve(code)
-      } else {
-        console.error('Docker build output:', buildOutput)
-        reject(new Error(`Docker build failed with code ${code}. Output: ${buildOutput.slice(-500)}`))
-      }
-    })
-  })
-
-  console.log('Starting Docker container...')
-  // Start the Docker container
+  console.log('Starting Docker container for Passenger test...')
+  // Start the pre-built Docker container
   dockerProcess = spawn('docker', ['run', '-p', `${PORT}:80`, '--rm', 'axum-napi-passenger'], {
     cwd: process.cwd(),
     stdio: ['ignore', 'pipe', 'pipe']
@@ -92,7 +57,7 @@ test.beforeAll(async () => {
     attempts++
     
     if (attempts === maxAttempts) {
-      throw new Error('Docker Passenger server failed to start in time')
+      throw new Error('Phusion Passenger server failed to start in time')
     }
   }
 })

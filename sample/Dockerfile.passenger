@@ -1,12 +1,8 @@
-# Dockerfile for running the axum_napi_bridge sample with Nginx
-FROM node:20-slim
+# Dockerfile for running the axum_napi_bridge sample with Phusion Passenger + Nginx
+FROM ghcr.io/phusion/passenger-nodejs:3.0.0
 
-# Install nginx
-RUN apt-get update && apt-get install -y \
-    nginx \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set up the application  
+# Set up the application directory
+RUN mkdir -p /home/app
 WORKDIR /home/app
 
 # Copy the pre-built native module and other necessary files
@@ -18,19 +14,22 @@ COPY server.cjs ./
 # Create a minimal package.json without "type": "module" for CommonJS compatibility
 RUN echo '{"name": "axum-napi-docker", "version": "1.0.0"}' > package.json
 
-# Copy nginx config for proxying
-COPY nginx_proxy.conf /etc/nginx/sites-available/default
+# Copy Passenger nginx configuration
+COPY passenger_nginx.conf /etc/nginx/sites-enabled/webapp.conf
 
-# Create startup script
-RUN echo '#!/bin/bash\n\
-# Start nginx\n\
-nginx &\n\
-# Start Node.js app\n\
-exec node server.cjs\n\
-' > /start.sh && chmod +x /start.sh
+# Remove default nginx site
+RUN rm -f /etc/nginx/sites-enabled/default
+
+# Create app user and set permissions (check if user exists first)
+RUN getent group app || groupadd -r app
+RUN getent passwd app || useradd -r -g app app
+RUN chown -R app:app /home/app
+
+# Enable nginx and passenger
+RUN rm -f /etc/service/nginx/down
 
 # Expose port
 EXPOSE 80
 
-# Start both nginx and the Node.js app
-CMD ["/start.sh"]
+# Use Phusion's init system
+CMD ["/sbin/my_init"]
