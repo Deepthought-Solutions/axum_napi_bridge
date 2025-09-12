@@ -1,4 +1,4 @@
-# Dockerfile for running the axum_napi_bridge sample with Nginx (alternative to avoid Docker Hub limitations)
+# Dockerfile for running the axum_napi_bridge sample with Nginx
 FROM ubuntu:22.04
 
 # Install Node.js 20 and nginx

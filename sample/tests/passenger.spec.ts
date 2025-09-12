@@ -15,29 +15,54 @@ let dockerProcess: ChildProcess | null = null
 let containerId: string | null = null
 
 test.beforeAll(async () => {
+  console.log('Starting Docker build for Passenger test...')
+  
   // Build the Docker image
   const buildProcess = spawn('docker', ['build', '-f', 'Dockerfile.passenger', '-t', 'axum-napi-passenger', '.'], {
     cwd: process.cwd(),
-    stdio: 'inherit'
+    stdio: ['ignore', 'pipe', 'pipe']
+  })
+  
+  // Capture output for debugging
+  let buildOutput = ''
+  buildProcess.stdout?.on('data', (data) => {
+    buildOutput += data.toString()
+  })
+  buildProcess.stderr?.on('data', (data) => {
+    buildOutput += data.toString()
   })
   
   await new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       buildProcess.kill()
-      reject(new Error('Docker build timed out after 2 minutes'))
-    }, 120000)
+      reject(new Error('Docker build timed out after 4 minutes'))
+    }, 240000)
     
     buildProcess.on('close', (code) => {
       clearTimeout(timeout)
-      if (code === 0) resolve(code)
-      else reject(new Error(`Docker build failed with code ${code}`))
+      if (code === 0) {
+        console.log('Docker build completed successfully')
+        resolve(code)
+      } else {
+        console.error('Docker build output:', buildOutput)
+        reject(new Error(`Docker build failed with code ${code}. Output: ${buildOutput.slice(-500)}`))
+      }
     })
   })
 
+  console.log('Starting Docker container...')
   // Start the Docker container
   dockerProcess = spawn('docker', ['run', '-p', `${PORT}:80`, '--rm', 'axum-napi-passenger'], {
     cwd: process.cwd(),
     stdio: ['ignore', 'pipe', 'pipe']
+  })
+  
+  // Log container output for debugging
+  dockerProcess.stdout?.on('data', (data) => {
+    console.log('Container stdout:', data.toString())
+  })
+  dockerProcess.stderr?.on('data', (data) => {
+    console.error('Container stderr:', data.toString())
   })
 
   // Get container ID for cleanup
