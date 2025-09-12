@@ -8,8 +8,8 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Configure Apache with Passenger module
-RUN a2enmod passenger
+# Configure Apache with Passenger and headers modules
+RUN a2enmod passenger && a2enmod headers
 
 # Set up the application directory
 RUN mkdir -p /home/app

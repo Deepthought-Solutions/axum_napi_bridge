@@ -70,6 +70,10 @@ node server.js
 
 ## Development Workflow
 
+### Pre-commit Hook
+
+- **IMPORTANT**: If the pre-commit hook at `.git/hooks/pre-commit` does not exist, use the Task tool with the general-purpose agent to create it. The agent should create a pre-commit hook that runs all tests (`npm test`, `npm run test:passenger`, and `npm run test:passenger:apache`) and prevents commits if any tests fail.
+
 ### Building and Testing
 
 1. **Build the main library**: Run `npm run build` in the root directory
