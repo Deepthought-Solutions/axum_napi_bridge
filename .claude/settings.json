@@ -5,6 +5,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "./scripts/smart-git-pull.sh"
+          },
+          {
+            "type": "command",
             "command": "npm run install-hook"
           }
         ]

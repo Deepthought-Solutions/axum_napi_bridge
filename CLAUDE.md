@@ -187,7 +187,9 @@ Follow the branch naming convention from `AGENTS.md`:
 - `chore/` - Maintenance tasks
 - diff the git hook ig .git and run the npm command to update it
 
-## Additional content
+## Versioning
 
-- consider all changes (staged and not staged) to write the commit message
-- create a new branch if current branch is main before commit
+- Commit message content :
+  - consider all changes (all staged files) to write a section about the changes.
+  - Add relevant additional information from the context (Error report, conditions of failure)
+- create a new branch if current branch is main before commit.

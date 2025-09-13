@@ -177,6 +177,46 @@ fi
 cd ..
 
 print_status "All tests passed! 🎉"
+
+# Final check: ensure working directory is clean for commit
+print_info "Checking working directory status before commit..."
+
+# Check for untracked files (files that should be in .gitignore)
+untracked_files=$(git status --porcelain | grep '^??' || true)
+if [ -n "$untracked_files" ]; then
+    print_error "Untracked files found in working directory!"
+    print_info "The following files are not tracked by git:"
+    echo "$untracked_files"
+    print_info "These files should either be:"
+    print_info "  1. Added to .gitignore if they are generated files, temporary files, secrets, or data files"
+    print_info "  2. Staged with 'git add' if they should be included in this commit"
+    print_info "Generated files (*.js from *.ts, build artifacts, etc.) must be in .gitignore"
+    exit 1
+fi
+
+# Check for unstaged changes to tracked files (M in second column of status)
+unstaged_changes=$(git status --porcelain | grep '^.[MD]' || true)
+if [ -n "$unstaged_changes" ]; then
+    print_error "Some tracked files have unstaged changes after tests!"
+    print_info "The following files have unstaged changes:"
+    echo "$unstaged_changes"
+    print_info "Please stage these changes with 'git add' and commit again"
+    exit 1
+fi
+
+# Check if any previously staged files are no longer staged
+# This would show files that were staged but are now modified (not staged)
+staged_then_modified=$(git status --porcelain | grep '^ M' || true)
+if [ -n "$staged_then_modified" ]; then
+    print_error "Some staged files were modified during tests and are no longer fully staged!"
+    print_info "The following files were staged but now have unstaged changes:"
+    echo "$staged_then_modified"
+    print_info "Please re-stage these changes with 'git add' and commit again"
+    exit 1
+fi
+
+print_status "Working directory is clean and ready for commit"
+
 print_info "Proceeding with commit..."
 
 exit 0
