@@ -1,6 +1,6 @@
 {
   "name": "example-axum-app",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "An example Axum app using the axum-napi-bridge.",
   "main": "index.cjs",
   "type": "module",
