@@ -15,11 +15,19 @@ NC='\033[0m' # No Color
 # Function to check if working directory is dirty
 # Outputs: "dirty" or "clean"
 is_working_directory_dirty() {
-    if git diff-index --quiet HEAD -- 2>/dev/null; then
-        echo "clean"
-    else
+    # Check for tracked file changes (staged and unstaged)
+    if ! git diff-index --quiet HEAD -- 2>/dev/null; then
         echo "dirty"
+        return
     fi
+
+    # Check for untracked files
+    if [[ -n $(git ls-files --others --exclude-standard) ]]; then
+        echo "dirty"
+        return
+    fi
+
+    echo "clean"
 }
 
 # Function to stash changes if working directory is dirty
@@ -28,7 +36,7 @@ stash_if_dirty() {
     local dirty_status=$(is_working_directory_dirty)
     if [[ "$dirty_status" == "dirty" ]]; then
         echo -e "${YELLOW}Working directory has uncommitted changes. Stashing...${NC}" >&2
-        git stash push -m "Auto-stash before smart git pull at $(date)"
+        git stash push --include-untracked -m "Auto-stash before smart git pull at $(date)"
         echo -e "${GREEN}Changes stashed successfully${NC}" >&2
         echo "stashed"
     else
