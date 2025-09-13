@@ -13,11 +13,11 @@ http-body-util = "0.1.2"
 napi = { version = "3.0.0", features = ["tokio_rt", "serde-json"] }
 napi-derive = "3.0.0"
 napi-build = "2"
-axum_napi_bridge = { path = ".", version = "0.1.0" }
+axum_napi_bridge = { path = ".", version = "0.1.1" }
 
 [package]
 name = "axum_napi_bridge"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A bridge to use axum handlers in Node.js"
 license = "MIT"
