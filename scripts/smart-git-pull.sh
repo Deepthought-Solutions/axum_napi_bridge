@@ -65,7 +65,7 @@ if git ls-remote --exit-code --heads origin "$current_branch" >/dev/null 2>&1; t
     echo -e "${GREEN}Remote branch 'origin/${current_branch}' exists. Pulling latest changes...${NC}"
 
     # Stash changes if working directory is dirty
-    stashed=$(stash_if_dirty)
+    stashed=$(stash_if_dirty | tail -1)
 
     # Pull with rebase strategy
     git pull --rebase origin "$current_branch"
@@ -97,7 +97,7 @@ else
     echo -e "${BLUE}Switching to main and checking if branch should be rebased...${NC}"
 
     # Stash changes if working directory is dirty
-    stashed=$(stash_if_dirty)
+    stashed=$(stash_if_dirty | tail -1)
 
     # Get the current branch ref before switching
     original_branch_ref=$(git rev-parse HEAD)
