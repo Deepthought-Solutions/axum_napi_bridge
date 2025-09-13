@@ -44,6 +44,9 @@ npm run lint
 
 # Run benchmarks
 npm run bench
+
+# Install pre-commit hook
+npm run install-hook
 ```
 
 ### Sample App Commands
@@ -72,7 +75,13 @@ node server.js
 
 ### Pre-commit Hook
 
-The pre-commit hook at `.git/hooks/pre-commit` automatically runs a comprehensive test suite before allowing commits. The hook includes:
+The pre-commit hook automatically runs a comprehensive test suite before allowing commits. To install the hook:
+
+```bash
+npm run install-hook
+```
+
+The hook is versioned in `scripts/pre-commit-hook.sh` and includes:
 
 1. **Main library tests**: Runs `npm test` in the root directory
 2. **Sample app tests**: Runs `npm test` in the sample directory
@@ -80,7 +89,7 @@ The pre-commit hook at `.git/hooks/pre-commit` automatically runs a comprehensiv
 4. **Passenger Nginx tests**: Runs `npm run test:passenger` to verify Nginx + Passenger deployment
 5. **Passenger Apache tests**: Runs `npm run test:passenger:apache` to verify Apache + Passenger deployment
 
-**IMPORTANT**: If the pre-commit hook does not exist, use the Task tool with the general-purpose agent to create it. The hook must include all the above tests and benchmarks and prevent commits if any fail. The hook uses colored output for better visibility and proper error handling with `set -e`.
+The hook uses colored output for better visibility and proper error handling with `set -e`. All tests must pass before commits are allowed.
 
 ### Building and Testing
 
