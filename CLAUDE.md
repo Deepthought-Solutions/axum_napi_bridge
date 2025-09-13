@@ -189,5 +189,5 @@ Follow the branch naming convention from `AGENTS.md`:
 
 ## Additional content
 
-- consider all changes (staged and not staged) to write the commit message
-- create a new branch if current branch is main before commit
+- consider all changes (staged and not staged) to write the commit message. Adds also a summary of the current context.
+- create a new branch if current branch is main before commit.
