@@ -1,0 +1,66 @@
+name: Format and Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install sample dependencies
+        run: |
+          cd sample
+          npm ci
+      - name: Check Rust formatting
+        run: cargo fmt --all -- --check
+      - name: Check TOML formatting
+        run: npx taplo format --check
+      - name: Check Prettier formatting (root)
+        run: npx prettier . --check
+      - name: Check Prettier formatting (sample)
+        run: |
+          cd sample
+          npx prettier . --check
+
+  lint-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install sample dependencies
+        run: |
+          cd sample
+          npm ci
+      - name: Run Rust linting (clippy)
+        run: cargo clippy --workspace -- -D warnings
+      - name: Run JS/TS linting (root)
+        run: npx oxlint .
+      - name: Run JS/TS linting (sample)
+        run: |
+          cd sample
+          npx oxlint .

@@ -9,9 +9,9 @@ on:
         default: 'patch'
         type: choice
         options:
-        - patch
-        - minor
-        - major
+          - patch
+          - minor
+          - major
       custom_version:
         description: 'Custom version (optional, overrides version_type)'
         required: false
@@ -24,49 +24,49 @@ jobs:
   update-version:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-    - name: Configure Git
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
 
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
-    - name: Install cargo-edit
-      run: cargo install cargo-edit
+      - name: Install cargo-edit
+        run: cargo install cargo-edit
 
-    - name: Update version
-      run: |
-        if [ -n "${{ github.event.inputs.custom_version }}" ]; then
-          echo "Setting custom version: ${{ github.event.inputs.custom_version }}"
-          cargo set-version ${{ github.event.inputs.custom_version }}
-        else
-          echo "Bumping ${{ github.event.inputs.version_type }} version"
-          cargo set-version --bump ${{ github.event.inputs.version_type }}
-        fi
+      - name: Update version
+        run: |
+          if [ -n "${{ github.event.inputs.custom_version }}" ]; then
+            echo "Setting custom version: ${{ github.event.inputs.custom_version }}"
+            cargo set-version ${{ github.event.inputs.custom_version }}
+          else
+            echo "Bumping ${{ github.event.inputs.version_type }} version"
+            cargo set-version --bump ${{ github.event.inputs.version_type }}
+          fi
 
-    - name: Update workspace dependency version
-      run: |
-        NEW_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
-        echo "New version: $NEW_VERSION"
-        sed -i "s/axum_napi_bridge = { path = \".\", version = \".*\" }/axum_napi_bridge = { path = \".\", version = \"$NEW_VERSION\" }/" Cargo.toml
+      - name: Update workspace dependency version
+        run: |
+          NEW_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          echo "New version: $NEW_VERSION"
+          sed -i "s/axum_napi_bridge = { path = \".\", version = \".*\" }/axum_napi_bridge = { path = \".\", version = \"$NEW_VERSION\" }/" Cargo.toml
 
-    - name: Run tests to verify changes
-      run: cargo test
+      - name: Run tests to verify changes
+        run: cargo test
 
-    - name: Commit version update
-      run: |
-        NEW_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
-        git add Cargo.toml
-        git commit -m "chore: bump version to $NEW_VERSION"
-        git tag "v$NEW_VERSION"
+      - name: Commit version update
+        run: |
+          NEW_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          git add Cargo.toml
+          git commit -m "chore: bump version to $NEW_VERSION"
+          git tag "v$NEW_VERSION"
 
-    - name: Push changes
-      run: |
-        git push origin HEAD:${{ github.ref_name }}
-        git push origin --tags
+      - name: Push changes
+        run: |
+          git push origin HEAD:${{ github.ref_name }}
+          git push origin --tags

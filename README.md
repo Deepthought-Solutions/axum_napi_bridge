@@ -21,9 +21,9 @@ The library provides a macro, `napi_axum_bridge!`, which generates the necessary
 
 ### Prerequisites
 
--   [Rust](https://www.rust-lang.org/tools/install)
--   [Node.js](https://nodejs.org/)
--   `@napi-rs/cli`
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Node.js](https://nodejs.org/)
+- `@napi-rs/cli`
 
 ### Usage
 
@@ -192,6 +192,7 @@ fn main() {
 ```
 
 ### `tests/bridge.spec.ts`
+
 ```typescript
 import { test, expect } from '@playwright/test'
 import { handleRequest } from '../index.js'
@@ -219,6 +220,7 @@ test('POST /test', async () => {
 ```
 
 ### `server.ts` (Optional HTTP Server)
+
 ```typescript
 import { handleRequest } from './index.js'
 import { createServer } from 'http'
@@ -227,13 +229,13 @@ const server = createServer(async (req, res) => {
   try {
     const body = await new Promise<string | null>((resolve) => {
       let data = ''
-      req.on('data', chunk => data += chunk)
+      req.on('data', (chunk) => (data += chunk))
       req.on('end', () => resolve(data || null))
     })
 
     const result = await handleRequest(req.method!, req.url!, req.headers, body)
     const response = JSON.parse(result)
-    
+
     res.writeHead(response.status, response.headers)
     res.end(response.body)
   } catch (error) {
@@ -257,6 +259,7 @@ npm run install-hook
 ```
 
 The hook automatically runs:
+
 - Main library tests
 - Sample app tests
 - Performance benchmarks
@@ -301,13 +304,13 @@ const server = createServer(async (req, res) => {
   try {
     const body = await new Promise<string | null>((resolve) => {
       let data = ''
-      req.on('data', chunk => data += chunk)
+      req.on('data', (chunk) => (data += chunk))
       req.on('end', () => resolve(data || null))
     })
 
     const result = await handleRequest(req.method!, req.url!, req.headers, body)
     const response = JSON.parse(result)
-    
+
     res.writeHead(response.status, response.headers)
     res.end(response.body)
   } catch (error) {
@@ -327,8 +330,12 @@ The bridge also works seamlessly with Apache + Passenger for enterprise environm
 ### Docker Deployment
 
 Pre-built Docker configurations are available in the repository:
+
 - `Dockerfile.passenger` - Nginx + Passenger setup
 - `Dockerfile.apache` - Apache + Passenger setup
 
 Both configurations use official Phusion Passenger base images and are tested in CI/CD.
+
+```
+
 ```

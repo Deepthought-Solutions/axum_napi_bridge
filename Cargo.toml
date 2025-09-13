@@ -1,7 +1,5 @@
 [workspace]
-members = [
-    "sample",
-]
+members = ["sample"]
 
 [workspace.dependencies]
 axum = "0.8.4"
@@ -28,15 +26,15 @@ documentation = "https://docs.rs/axum_napi_bridge"
 homepage = "https://github.com/Deepthought-Solutions/axum_napi_bridge"
 repository = "https://github.com/Deepthought-Solutions/axum_napi_bridge"
 exclude = [
-    "sample/",
-    ".github/",
-    "apache.conf",
-    "index.d.ts",
-    "index.js",
-    "package.json",
-    "package-lock.json",
-    "tsconfig.json",
-    "wasi-worker-browser.mjs",
+  "sample/",
+  ".github/",
+  "apache.conf",
+  "index.d.ts",
+  "index.js",
+  "package.json",
+  "package-lock.json",
+  "tsconfig.json",
+  "wasi-worker-browser.mjs",
 ]
 
 [lib]

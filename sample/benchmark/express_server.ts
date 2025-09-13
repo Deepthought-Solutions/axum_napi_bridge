@@ -6,7 +6,7 @@ app.get('/', (req, res) => {
   res.json({
     status: 200,
     headers: { 'content-type': 'application/json' },
-    body: 'Hello from the example app!'
+    body: 'Hello from the example app!',
   })
 })
 
@@ -14,7 +14,7 @@ app.get('/test', (req, res) => {
   res.json({
     status: 200,
     headers: { 'content-type': 'application/json' },
-    body: 'This is a test route.'
+    body: 'This is a test route.',
   })
 })
 
@@ -23,7 +23,7 @@ app.get('/concurrent-test', (req, res) => {
     res.json({
       status: 200,
       headers: { 'content-type': 'application/json' },
-      body: 'Concurrent test route.'
+      body: 'Concurrent test route.',
     })
   }, 50)
 })
@@ -38,36 +38,38 @@ interface BenchResponse {
 function handleExpressRequest(method: string, path: string): Promise<string> {
   return new Promise((resolve) => {
     let response: BenchResponse
-    
+
     if (method === 'GET' && path === '/') {
       response = {
         status: 200,
         headers: { 'content-type': 'application/json' },
-        body: 'Hello from the example app!'
+        body: 'Hello from the example app!',
       }
     } else if (method === 'GET' && path === '/test') {
       response = {
         status: 200,
         headers: { 'content-type': 'application/json' },
-        body: 'This is a test route.'
+        body: 'This is a test route.',
       }
     } else if (method === 'GET' && path === '/concurrent-test') {
       setTimeout(() => {
-        resolve(JSON.stringify({
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-          body: 'Concurrent test route.'
-        }))
+        resolve(
+          JSON.stringify({
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+            body: 'Concurrent test route.',
+          }),
+        )
       }, 50)
       return
     } else {
       response = {
         status: 404,
         headers: { 'content-type': 'application/json' },
-        body: 'Not Found'
+        body: 'Not Found',
       }
     }
-    
+
     resolve(JSON.stringify(response))
   })
 }

@@ -19,9 +19,9 @@ const server = http.createServer(async (req, res) => {
 
     res.statusCode = response.status
     for (const [key, value] of response.headers) {
-        if (key.toLowerCase() !== 'content-length') {
-            res.setHeader(key, value)
-        }
+      if (key.toLowerCase() !== 'content-length') {
+        res.setHeader(key, value)
+      }
     }
     res.end(response.body)
   } catch (e) {

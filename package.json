@@ -45,7 +45,9 @@
     "format:toml": "taplo format",
     "format:rs": "cargo fmt",
     "install-hook": "cp scripts/pre-commit-hook.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit",
-    "lint": "oxlint .",
+    "lint": "run-p lint:js lint:rs",
+    "lint:js": "oxlint .",
+    "lint:rs": "cargo clippy --workspace -- -D warnings",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "cd sample && npm test",
     "version": "napi version"

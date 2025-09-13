@@ -30,6 +30,23 @@ print_info() {
 # Change to the root directory
 cd "$(git rev-parse --show-toplevel)"
 
+# Formatting and linting checks
+print_info "Checking code formatting..."
+if npm run format:rs && npm run format:toml && npm run format:prettier; then
+    print_status "Code formatting passed"
+else
+    print_error "Code formatting failed - please run 'npm run format' to fix"
+    exit 1
+fi
+
+print_info "Running linting checks..."
+if npm run lint; then
+    print_status "Linting checks passed"
+else
+    print_error "Linting checks failed - please fix the issues"
+    exit 1
+fi
+
 print_info "Running main library tests..."
 if npm test; then
     print_status "Main library tests passed"
