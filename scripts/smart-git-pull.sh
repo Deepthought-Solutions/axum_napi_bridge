@@ -13,29 +13,34 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Function to check if working directory is dirty
+# Outputs: "dirty" or "clean"
 is_working_directory_dirty() {
     if git diff-index --quiet HEAD -- 2>/dev/null; then
-        return 1  # Clean working directory
+        echo "clean"
     else
-        return 0  # Dirty working directory
+        echo "dirty"
     fi
 }
 
 # Function to stash changes if working directory is dirty
+# Outputs: "stashed" if stashing was performed, "no-stash" if not needed
 stash_if_dirty() {
-    if is_working_directory_dirty; then
-        echo -e "${YELLOW}Working directory has uncommitted changes. Stashing...${NC}"
+    local dirty_status=$(is_working_directory_dirty)
+    if [[ "$dirty_status" == "dirty" ]]; then
+        echo -e "${YELLOW}Working directory has uncommitted changes. Stashing...${NC}" >&2
         git stash push -m "Auto-stash before smart git pull at $(date)"
-        echo -e "${GREEN}Changes stashed successfully${NC}"
-        return 0
+        echo -e "${GREEN}Changes stashed successfully${NC}" >&2
+        echo "stashed"
+    else
+        echo "no-stash"
     fi
-    return 0
 }
 
 # Function to pop stash if it was created
+# Takes stash status as parameter: "stashed" or "no-stash"
 pop_stash_if_needed() {
-    local stashed=$1
-    if [[ $stashed -eq 0 ]]; then
+    local stash_status=$1
+    if [[ "$stash_status" == "stashed" ]]; then
         echo -e "${BLUE}Restoring stashed changes...${NC}"
         git stash pop
         echo -e "${GREEN}Stashed changes restored${NC}"
@@ -52,8 +57,7 @@ if git ls-remote --exit-code --heads origin "$current_branch" >/dev/null 2>&1; t
     echo -e "${GREEN}Remote branch 'origin/${current_branch}' exists. Pulling latest changes...${NC}"
 
     # Stash changes if working directory is dirty
-    stash_if_dirty
-    stashed=$?
+    stashed=$(stash_if_dirty)
 
     # Pull with rebase strategy
     git pull --rebase origin "$current_branch"
@@ -79,14 +83,13 @@ if git ls-remote --exit-code --heads origin "$current_branch" >/dev/null 2>&1; t
     fi
 
     # Restore stashed changes if needed
-    pop_stash_if_needed $stashed
+    pop_stash_if_needed "$stashed"
 else
     echo -e "${YELLOW}No remote branch found for '${current_branch}'${NC}"
     echo -e "${BLUE}Switching to main and checking if branch should be rebased...${NC}"
 
     # Stash changes if working directory is dirty
-    stash_if_dirty
-    stashed=$?
+    stashed=$(stash_if_dirty)
 
     # Get the current branch ref before switching
     original_branch_ref=$(git rev-parse HEAD)
@@ -108,5 +111,5 @@ else
     fi
 
     # Restore stashed changes if needed
-    pop_stash_if_needed $stashed
+    pop_stash_if_needed "$stashed"
 fi
