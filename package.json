@@ -1,6 +1,6 @@
 {
   "name": "axum_napi_bridge",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Bridge to use axum Router from nodejs",
   "main": "index.js",
   "repository": {
