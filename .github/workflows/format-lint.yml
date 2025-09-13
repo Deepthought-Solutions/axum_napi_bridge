@@ -21,11 +21,11 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || (echo "npm ci failed, trying npm install..." && npm install)
       - name: Install sample dependencies
         run: |
           cd sample
-          npm ci
+          npm ci || (echo "npm ci failed, trying npm install..." && npm install)
       - name: Check Rust formatting
         run: cargo fmt --all -- --check
       - name: Check TOML formatting
@@ -51,11 +51,11 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || (echo "npm ci failed, trying npm install..." && npm install)
       - name: Install sample dependencies
         run: |
           cd sample
-          npm ci
+          npm ci || (echo "npm ci failed, trying npm install..." && npm install)
       - name: Run Rust linting (clippy)
         run: cargo clippy --workspace -- -D warnings
       - name: Run JS/TS linting (root)
