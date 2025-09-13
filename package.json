@@ -44,11 +44,11 @@
     "format:prettier": "prettier . -w",
     "format:toml": "taplo format",
     "format:rs": "cargo fmt",
+    "install-hook": "cp scripts/pre-commit-hook.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit",
     "lint": "oxlint .",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "cd sample && npm test",
-    "version": "napi version",
-    "prepare": "husky"
+    "version": "napi version"
   },
   "devDependencies": {
     "@emnapi/core": "^1.4.5",
@@ -58,24 +58,11 @@
     "@taplo/cli": "^0.7.0",
     "@tybys/wasm-util": "^0.10.0",
     "chalk": "^5.4.1",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.2",
     "npm-run-all2": "^8.0.4",
     "oxlint": "^1.8.0",
     "prettier": "^3.6.2",
     "tinybench": "^5.0.0",
     "typescript": "^5.8.3"
-  },
-  "lint-staged": {
-    "*.@(js|ts|tsx)": [
-      "oxlint --fix"
-    ],
-    "*.@(js|ts|tsx|yml|yaml|md|json)": [
-      "prettier --write"
-    ],
-    "*.toml": [
-      "taplo format"
-    ]
   },
   "prettier": {
     "printWidth": 120,

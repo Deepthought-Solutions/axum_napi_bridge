@@ -246,6 +246,46 @@ server.listen(process.env.PORT || 3000)
 console.log(`Server listening on port ${process.env.PORT || 3000}`)
 ```
 
+## Development
+
+### Pre-commit Hook
+
+To ensure code quality and prevent issues, install the pre-commit hook that runs all tests before commits:
+
+```bash
+npm run install-hook
+```
+
+The hook automatically runs:
+- Main library tests
+- Sample app tests
+- Performance benchmarks
+- Phusion Passenger deployment tests (Nginx + Apache)
+
+All tests must pass before commits are allowed.
+
+### Development Commands
+
+```bash
+# Install pre-commit hook
+npm run install-hook
+
+# Build the library
+npm run build
+
+# Run tests
+npm test
+
+# Format code
+npm run format
+
+# Lint code
+npm run lint
+
+# Run benchmarks
+npm run bench
+```
+
 ## Production Deployment with Phusion Passenger
 
 ### Nginx + Passenger
