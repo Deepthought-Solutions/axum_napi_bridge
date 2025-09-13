@@ -177,6 +177,19 @@ fi
 cd ..
 
 print_status "All tests passed! 🎉"
+
+# Final check: ensure working copy is clean
+print_info "Checking if working copy is clean..."
+if [ -n "$(git status --porcelain)" ]; then
+    print_error "Working copy is not clean after tests!"
+    print_info "The following files have uncommitted changes:"
+    git status --porcelain
+    print_info "Please review and stage any necessary changes before committing"
+    exit 1
+else
+    print_status "Working copy is clean"
+fi
+
 print_info "Proceeding with commit..."
 
 exit 0
