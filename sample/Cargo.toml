@@ -3,6 +3,10 @@ name = "example-axum-app"
 version = "0.1.0"
 edition = "2021"
 build = "build.rs"
+authors = ["Nicolas Karageuzian"]
+description = "Sample documentation app for axum_napi_bridge"
+license = "MIT"
+
 
 [lib]
 crate-type = ["cdylib"]
