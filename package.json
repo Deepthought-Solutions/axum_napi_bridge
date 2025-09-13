@@ -1,6 +1,6 @@
 {
   "name": "axum_napi_bridge",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Bridge to use axum Router from nodejs",
   "main": "index.js",
   "repository": {
@@ -49,8 +49,10 @@
     "lint:js": "oxlint .",
     "lint:rs": "cargo clippy --workspace -- -D warnings",
     "prepublishOnly": "napi prepublish -t npm",
+    "sync-versions": "node scripts/sync-versions.js",
     "test": "cd sample && npm test",
-    "version": "napi version"
+    "update-version": "node scripts/update-version.js",
+    "version": "napi version && npm run sync-versions"
   },
   "devDependencies": {
     "@emnapi/core": "^1.4.5",
