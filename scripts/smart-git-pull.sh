@@ -29,7 +29,7 @@ stash_if_dirty() {
         echo -e "${GREEN}Changes stashed successfully${NC}"
         return 0
     fi
-    return 1
+    return 0
 }
 
 # Function to pop stash if it was created
