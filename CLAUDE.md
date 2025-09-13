@@ -72,7 +72,15 @@ node server.js
 
 ### Pre-commit Hook
 
-- **IMPORTANT**: If the pre-commit hook at `.git/hooks/pre-commit` does not exist, use the Task tool with the general-purpose agent to create it. The agent should create a pre-commit hook that runs all tests (`npm test`, `npm run test:passenger`, and `npm run test:passenger:apache`) and prevents commits if any tests fail.
+The pre-commit hook at `.git/hooks/pre-commit` automatically runs a comprehensive test suite before allowing commits. The hook includes:
+
+1. **Main library tests**: Runs `npm test` in the root directory
+2. **Sample app tests**: Runs `npm test` in the sample directory
+3. **Sample app benchmarks**: Runs `npm run bench` in the sample directory to ensure performance integrity
+4. **Passenger Nginx tests**: Runs `npm run test:passenger` to verify Nginx + Passenger deployment
+5. **Passenger Apache tests**: Runs `npm run test:passenger:apache` to verify Apache + Passenger deployment
+
+**IMPORTANT**: If the pre-commit hook does not exist, use the Task tool with the general-purpose agent to create it. The hook must include all the above tests and benchmarks and prevent commits if any fail. The hook uses colored output for better visibility and proper error handling with `set -e`.
 
 ### Building and Testing
 

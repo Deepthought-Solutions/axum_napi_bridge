@@ -1,5 +1,5 @@
 import { Bench } from 'tinybench'
-import { handleRequest } from '../index.js'
+import { handleRequest } from '../index.mjs'
 import { handleExpressRequest } from './express_server.js'
 import { handleKoaRequest } from './koa_server.js'
 
