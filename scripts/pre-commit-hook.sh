@@ -64,12 +64,38 @@ check_package_lock_sync() {
 check_package_lock_sync "." "root directory"
 check_package_lock_sync "sample" "sample directory"
 
-# Formatting and linting checks
-print_info "Checking code formatting..."
-if npm run format:rs && npm run format:toml && npm run format:prettier; then
-    print_status "Code formatting passed"
+# Formatting checks (same as CI pipeline)
+print_info "Checking Rust formatting..."
+if cargo fmt --all -- --check; then
+    print_status "Rust formatting check passed"
 else
-    print_error "Code formatting failed - please run 'npm run format' to fix"
+    print_error "Rust formatting check failed - please run 'cargo fmt --all'"
+    exit 1
+fi
+
+print_info "Checking TOML formatting..."
+if npx taplo format --check; then
+    print_status "TOML formatting check passed"
+else
+    print_error "TOML formatting check failed - please run 'npx taplo format'"
+    exit 1
+fi
+
+print_info "Checking Prettier formatting (root)..."
+if npx prettier . --check; then
+    print_status "Prettier formatting check (root) passed"
+else
+    print_error "Prettier formatting check (root) failed - please run 'npx prettier . --write'"
+    exit 1
+fi
+
+print_info "Checking Prettier formatting (sample)..."
+if cd sample && npx prettier . --check; then
+    print_status "Prettier formatting check (sample) passed"
+    cd ..
+else
+    print_error "Prettier formatting check (sample) failed - please run 'cd sample && npx prettier . --write'"
+    cd ..
     exit 1
 fi
 
