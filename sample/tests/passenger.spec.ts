@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 // Override the webServer config for this test file
-test.use({ 
+test.use({
   baseURL: undefined,
 })
 import { spawn, type ChildProcess } from 'child_process'
@@ -19,9 +19,9 @@ test.beforeAll(async () => {
   // Start the pre-built Docker container
   dockerProcess = spawn('docker', ['run', '-p', `${PORT}:80`, '--rm', 'axum-napi-passenger'], {
     cwd: process.cwd(),
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: ['ignore', 'pipe', 'pipe'],
   })
-  
+
   // Log container output for debugging
   dockerProcess.stdout?.on('data', (data) => {
     console.log('Container stdout:', data.toString())
@@ -32,9 +32,9 @@ test.beforeAll(async () => {
 
   // Get container ID for cleanup
   const psProcess = spawn('docker', ['ps', '-q', '--filter', 'ancestor=axum-napi-passenger'], {
-    stdio: 'pipe'
+    stdio: 'pipe',
   })
-  
+
   psProcess.stdout.on('data', (data) => {
     containerId = data.toString().trim()
   })
@@ -42,20 +42,20 @@ test.beforeAll(async () => {
   // Wait for the server to start
   let attempts = 0
   const maxAttempts = 60 // Give more time for Docker container to start
-  
+
   while (attempts < maxAttempts) {
     try {
       const response = await fetch(`${SERVER_ADDRESS}/`, { timeout: 2000 })
       if (response.status === 200) {
         break
       }
-    } catch (error) {
+    } catch {
       // Server not ready yet
     }
-    
-    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    await new Promise((resolve) => setTimeout(resolve, 2000))
     attempts++
-    
+
     if (attempts === maxAttempts) {
       throw new Error('Phusion Passenger server failed to start in time')
     }
@@ -67,11 +67,11 @@ test.afterAll(async () => {
   if (containerId) {
     spawn('docker', ['stop', containerId], { stdio: 'inherit' })
   }
-  
+
   if (dockerProcess) {
     dockerProcess.kill()
     // Wait a bit for graceful shutdown
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    await new Promise((resolve) => setTimeout(resolve, 3000))
   }
 })
 
@@ -93,9 +93,9 @@ test('should handle POST requests through Passenger', async () => {
   const response = await fetch(`${SERVER_ADDRESS}/test`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ test: 'data' })
+    body: JSON.stringify({ test: 'data' }),
   })
   expect(response.status).toBe(200)
 })

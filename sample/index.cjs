@@ -64,10 +64,10 @@ const isMuslFromChildProcess = () => {
 }
 
 function requireNative() {
-  return require('./index.node');
+  return require('./index.node')
   if (process.env.NAPI_RS_NATIVE_LIBRARY_PATH) {
     try {
-      nativeBinding = require(process.env.NAPI_RS_NATIVE_LIBRARY_PATH);
+      nativeBinding = require(process.env.NAPI_RS_NATIVE_LIBRARY_PATH)
     } catch (err) {
       loadErrors.push(err)
     }
@@ -387,7 +387,7 @@ if (!nativeBinding) {
       `Cannot find native binding. ` +
         `npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). ` +
         'Please try `npm i` again after removing both package-lock.json and node_modules directory.',
-      { cause: loadErrors }
+      { cause: loadErrors },
     )
   }
   throw new Error(`Failed to load native binding`)

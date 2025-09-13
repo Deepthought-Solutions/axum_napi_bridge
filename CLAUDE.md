@@ -30,7 +30,7 @@ This is **axum_napi_bridge**, a Rust library that bridges Axum web servers to No
 # Build the library (release mode)
 npm run build
 
-# Build debug version  
+# Build debug version
 npm run build:debug
 
 # Run tests
@@ -94,7 +94,7 @@ The hook uses colored output for better visibility and proper error handling wit
 ### Building and Testing
 
 1. **Build the main library**: Run `npm run build` in the root directory
-2. **Test with sample app**: 
+2. **Test with sample app**:
    ```bash
    cd sample
    npm install
@@ -133,9 +133,10 @@ The library **must** be tested with Phusion Passenger as it's a primary deployme
 ### Docker Image Constraints
 
 When working with Docker images in this project:
+
 - **Avoid Docker Hub (docker.io) images** when possible due to rate limiting and pull restrictions in CI/CD environments
 - **Prefer alternative registries** that do not apply usage limitations:
-  - GitHub Container Registry (ghcr.io) 
+  - GitHub Container Registry (ghcr.io)
   - Quay.io (quay.io)
   - Other public registries without strict rate limits
 - If Docker Hub images must be used, ensure they are cached or mirrored to avoid CI failures
@@ -146,6 +147,7 @@ When working with Docker images in this project:
 ### The Bridge Macro
 
 The `napi_axum_bridge!` macro in `src/lib.rs`:
+
 - Takes a function that returns an `axum::Router`
 - Generates a `handle_request` function that can be called from JavaScript
 - Handles request/response serialization between Node.js and Rust
@@ -169,6 +171,7 @@ The `napi_axum_bridge!` macro in `src/lib.rs`:
 ## Dependencies Management
 
 When adding dependencies:
+
 - Add to `Cargo.toml` workspace dependencies first
 - Reference workspace versions in member crates
 - Ensure compatibility between Axum, Hyper, and HTTP crates versions
@@ -177,8 +180,14 @@ When adding dependencies:
 ## Branch Strategy
 
 Follow the branch naming convention from `AGENTS.md`:
+
 - `feature/` - New features
-- `fix/` - Bug fixes  
+- `fix/` - Bug fixes
 - `docs/` - Documentation changes
 - `chore/` - Maintenance tasks
 - diff the git hook ig .git and run the npm command to update it
+
+## Additional content
+
+- consider all changes (staged and not staged) to write the commit message
+- create a new branch if current branch is main before commit

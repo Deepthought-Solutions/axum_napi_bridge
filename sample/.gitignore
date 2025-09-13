@@ -5,3 +5,6 @@
 *.node
 /Cargo.lock
 /target/
+
+# Generated benchmark files
+/benchmark/*.js

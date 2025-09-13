@@ -7,6 +7,8 @@
   "scripts": {
     "build": "napi build --release",
     "build:passenger-test": "docker build -f Dockerfile.passenger -t axum-napi-passenger . && docker build -f Dockerfile.apache -t axum-napi-apache .",
+    "format": "prettier . -w && cargo fmt",
+    "lint": "oxlint . && cargo clippy -- -D warnings",
     "test": "playwright test tests/bridge.spec.ts",
     "test:e2e": "playwright test tests/example.spec.mjs",
     "test:passenger": "npm run build:passenger-test && playwright test --config=playwright.passenger.config.mjs",
@@ -24,9 +26,18 @@
   "devDependencies": {
     "@playwright/test": "^1.55.0",
     "node-fetch": "^3.3.2",
+    "oxlint": "^1.8.0",
+    "prettier": "^3.6.2",
     "tinybench": "^2.4.0",
     "ts-node": "^10.9.1",
     "tsx": "^4.0.0",
     "typescript": "^5.2.2"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "semi": false,
+    "trailingComma": "all",
+    "singleQuote": true,
+    "arrowParens": "always"
   }
 }
