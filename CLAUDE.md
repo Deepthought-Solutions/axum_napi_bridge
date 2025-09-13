@@ -181,3 +181,4 @@ Follow the branch naming convention from `AGENTS.md`:
 - `fix/` - Bug fixes  
 - `docs/` - Documentation changes
 - `chore/` - Maintenance tasks
+- diff the git hook ig .git and run the npm command to update it

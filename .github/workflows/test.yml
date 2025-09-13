@@ -104,22 +104,14 @@ jobs:
           npx playwright install --with-deps
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build Passenger Nginx Docker image
-        run: |
-          cd sample
-          timeout 1200 docker build -f Dockerfile.passenger -t axum-napi-passenger .
-      - name: Build Passenger Apache Docker image
-        run: |
-          cd sample
-          timeout 1200 docker build -f Dockerfile.apache -t axum-napi-apache .
       - name: Run Passenger (Nginx) tests
         run: |
           cd sample
-          timeout 360 npm run test:passenger
+          timeout 1200 npm run test:passenger
       - name: Run Passenger (Apache) tests
         run: |
           cd sample
-          timeout 360 npm run test:passenger:apache
+          timeout 1200 npm run test:passenger:apache
 
   benchmark:
     runs-on: ubuntu-latest

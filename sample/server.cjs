@@ -1,5 +1,5 @@
 const http = require('http')
-const { handleRequest } = require('./index.js')
+const { handleRequest } = require('./index.cjs')
 
 const server = http.createServer(async (req, res) => {
   const chunks = []

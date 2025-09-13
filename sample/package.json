@@ -6,10 +6,11 @@
   "type": "module",
   "scripts": {
     "build": "napi build --release",
+    "build:passenger-test": "docker build -f Dockerfile.passenger -t axum-napi-passenger . && docker build -f Dockerfile.apache -t axum-napi-apache .",
     "test": "playwright test tests/bridge.spec.ts",
     "test:e2e": "playwright test tests/example.spec.mjs",
-    "test:passenger": "playwright test --config=playwright.passenger.config.mjs",
-    "test:passenger:apache": "playwright test --config=playwright.apache.config.mjs",
+    "test:passenger": "npm run build:passenger-test && playwright test --config=playwright.passenger.config.mjs",
+    "test:passenger:apache": "npm run build:passenger-test && playwright test --config=playwright.apache.config.mjs",
     "bench": "npx tsc benchmark/bridge_bench.ts benchmark/express_server.ts benchmark/koa_server.ts --outDir benchmark --target es2022 --module es2022 --esModuleInterop --skipLibCheck --moduleResolution node && node benchmark/bridge_bench.js",
     "bench:concurrent": "node benchmark/concurrent_bench.mjs"
   },
