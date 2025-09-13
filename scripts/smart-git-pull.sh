@@ -14,11 +14,7 @@ NC='\033[0m' # No Color
 
 # Function to check if working directory is dirty
 is_working_directory_dirty() {
-    if git diff-index --quiet HEAD -- 2>/dev/null; then
-        return 1  # Clean working directory
-    else
-        return 0  # Dirty working directory
-    fi
+    ! git diff-index --quiet HEAD -- 2>/dev/null
 }
 
 # Function to stash changes if working directory is dirty
