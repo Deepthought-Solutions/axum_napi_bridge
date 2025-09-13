@@ -140,3 +140,5 @@ jobs:
           npm run build
       - name: Run benchmarks
         run: npm run bench
+      - name: Clean generated benchmark files
+        run: rm -f sample/benchmark/*.js

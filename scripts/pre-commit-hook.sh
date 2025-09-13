@@ -60,9 +60,16 @@ check_package_lock_sync() {
     fi
 }
 
+# Clean generated files that shouldn't be in the repository
+print_info "Cleaning generated files..."
+rm -f sample/benchmark/*.js 2>/dev/null || true
+
 # Check package-lock.json sync in root and sample directories
 check_package_lock_sync "." "root directory"
 check_package_lock_sync "sample" "sample directory"
+
+# Store git status before formatting checks
+git_status_before=$(git status --porcelain)
 
 # Formatting checks (same as CI pipeline)
 print_info "Checking Rust formatting..."
@@ -96,6 +103,15 @@ if cd sample && npx prettier . --check; then
 else
     print_error "Prettier formatting check (sample) failed - please run 'cd sample && npx prettier . --write'"
     cd ..
+    exit 1
+fi
+
+# Check if any formatter made changes to tracked files
+git_status_after=$(git status --porcelain)
+if [ "$git_status_before" != "$git_status_after" ]; then
+    print_error "Files were modified by formatters during pre-commit checks!"
+    print_info "Please stage the formatting changes and commit again"
+    git diff --name-only
     exit 1
 fi
 
@@ -133,6 +149,10 @@ else
     print_error "Sample app benchmarks failed"
     exit 1
 fi
+
+# Clean generated files after benchmarks
+print_info "Cleaning generated benchmark files after tests..."
+rm -f benchmark/*.js 2>/dev/null || true
 
 # Return to root directory
 cd ..

@@ -26,6 +26,8 @@ jobs:
         run: |
           cd sample
           npm ci || (echo "npm ci failed, trying npm install..." && npm install)
+      - name: Clean generated files
+        run: rm -f sample/benchmark/*.js
       - name: Check Rust formatting
         run: cargo fmt --all -- --check
       - name: Check TOML formatting
@@ -56,6 +58,8 @@ jobs:
         run: |
           cd sample
           npm ci || (echo "npm ci failed, trying npm install..." && npm install)
+      - name: Clean generated files
+        run: rm -f sample/benchmark/*.js
       - name: Run Rust linting (clippy)
         run: cargo clippy --workspace -- -D warnings
       - name: Run JS/TS linting (root)
